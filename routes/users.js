@@ -3,6 +3,8 @@ var router = express.Router();
 var multer = require('multer');
 var uploads = multer({dest: './uploads'});
 
+var User = require('../models/user');
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -72,10 +74,10 @@ router.post('/register', uploads.single('profileimage'), function(req,res,next){
     });
 
     //Create User
-    //User.createUser(newUser, function(err, user){
-    //  if(err)throw err;
-    //  console.log(user);
-    //});
+    User.createUser(newUser, function(err, user){
+      if(err)throw err;
+      console.log(user);
+    });
 
     //Success Message
     req.flash('Success', 'You are now registered and may log in');
