@@ -24,9 +24,25 @@ var UserSchema = mongoose.Schema({
 
 var User = module.exports = mongoose.model('User', UserSchema);
 
+module.exports.comparePassword = function(username,password,callback){
+    var query = User.findOne({
+        username: username
+    },{_id:0,username:1,password:1});
+    var isMatch = false;
+    if(query!=null){
+        isMatch = true;
+    }
+    console.log(isMatch);
+    callback(null, isMatch);
+}
+
 module.exports.getUserByUsername = function(username,callback){
     var query = {username: username};
     User.findOne(query,callback);
+}
+
+module.exports.getUserById = function(id,callback){
+    User.findById(id,callback);
 }
 
 module.exports.createUser = function(newUser, callback){
