@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 var uploads = multer({dest: './uploads'});
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 var User = require('../models/user');
 
@@ -86,4 +88,35 @@ router.post('/register', uploads.single('profileimage'), function(req,res,next){
     res.redirect('/');
   }
 });
+
+passport.use(new LocalStrategy(
+    function (username, password, done) {
+      User.getUserByUsername(username, function(err, user){
+        if(err){
+          throw err;
+        }
+        if(!user){
+          console.log('Unknown User');
+          return done(null,false, {message:'Unknown User'});
+        }
+
+        User.comparePassword(password,user.password, function(err,isMatch){
+          if(err)throw err;
+          if(isMatch){
+            return done(null, user);
+          }else{
+            console.log('Invalid Password');
+            return done(null,false,{message: 'Invalid Password'});
+          }
+        });
+      });
+    }
+));
+
+router.post('/login', passport.authenticate('local', {failureRedirect:'/users/login', failureFlash:'Invalid username or password'}), function (req, res) {
+  console.log('Authentication Successful');
+  req.flash('Success', 'You are Logged in');
+  res.redirect('/');
+});
+
 module.exports = router;
